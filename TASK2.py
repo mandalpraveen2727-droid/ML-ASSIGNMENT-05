@@ -11,9 +11,6 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-# --------------------------------------------------
-# 1. Create the custom student dataset
-# --------------------------------------------------
 
 data = {
     "Study_Hours": [
@@ -34,7 +31,6 @@ data = {
         60, 70, 73, 83, 95
     ],
 
-    # 0 = Fail and 1 = Pass
     "Result": [
         0, 0, 0, 0, 0,
         0, 0, 1, 1, 1,
@@ -50,16 +46,8 @@ df = pd.DataFrame(data)
 print("Student Dataset:")
 print(df)
 
-# --------------------------------------------------
-# 2. Separate features and target
-# --------------------------------------------------
-
 X = df[["Study_Hours", "Attendance"]]
 y = df["Result"]
-
-# --------------------------------------------------
-# 3. Train-test split
-# --------------------------------------------------
 
 X_train, X_test, y_train, y_test = train_test_split(
     X,
@@ -69,18 +57,10 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y
 )
 
-# --------------------------------------------------
-# 4. Feature scaling
-# --------------------------------------------------
-
 scaler = StandardScaler()
 
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
-
-# --------------------------------------------------
-# 5. Train Logistic Regression model
-# --------------------------------------------------
 
 model = LogisticRegression(
     random_state=42
@@ -91,11 +71,6 @@ model.fit(
     y_train
 )
 
-# --------------------------------------------------
-# 6. Calculate probabilities
-# --------------------------------------------------
-
-# Probability that a student will pass
 pass_probabilities = model.predict_proba(
     X_test_scaled
 )[:, 1]
@@ -103,22 +78,16 @@ pass_probabilities = model.predict_proba(
 print("\nPass Probabilities:")
 print(pass_probabilities.round(4))
 
-# --------------------------------------------------
-# 7. Apply different decision thresholds
-# --------------------------------------------------
-
 thresholds = [0.3, 0.5, 0.7]
 
 comparison_results = []
 
 for threshold in thresholds:
 
-    # Convert probability into class using the threshold
     y_pred = (
         pass_probabilities >= threshold
     ).astype(int)
 
-    # Calculate metrics
     accuracy = accuracy_score(
         y_test,
         y_pred
@@ -151,7 +120,6 @@ for threshold in thresholds:
         "F1 Score": f1
     })
 
-    # Display individual threshold result
     print(f"\nResults for Threshold = {threshold}")
     print("-" * 40)
 
@@ -163,20 +131,12 @@ for threshold in thresholds:
     print("\nConfusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
 
-# --------------------------------------------------
-# 8. Display comparison table
-# --------------------------------------------------
-
 comparison_df = pd.DataFrame(
     comparison_results
 )
 
 print("\nThreshold Comparison:")
 print(comparison_df.round(4))
-
-# --------------------------------------------------
-# 9. Display predictions for every threshold
-# --------------------------------------------------
 
 prediction_table = X_test.copy()
 
