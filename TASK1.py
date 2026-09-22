@@ -1,4 +1,3 @@
-# Import required libraries
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
@@ -12,10 +11,6 @@ from sklearn.metrics import (
     confusion_matrix,
     classification_report
 )
-
-# --------------------------------------------------
-# 1. Create a custom student dataset
-# --------------------------------------------------
 
 data = {
     "Study_Hours": [
@@ -36,8 +31,7 @@ data = {
         60, 70, 73, 83, 95
     ],
 
-    # 0 means Fail and 1 means Pass
-    "Result": [
+        "Result": [
         0, 0, 0, 0, 0,
         0, 0, 1, 1, 1,
         1, 1, 1, 1, 1,
@@ -47,7 +41,6 @@ data = {
     ]
 }
 
-# Convert the dictionary into a DataFrame
 df = pd.DataFrame(data)
 
 print("Student Dataset:")
@@ -56,34 +49,25 @@ print(df)
 print("\nResult Distribution:")
 print(df["Result"].value_counts())
 
-# --------------------------------------------------
-# 2. Separate input features and target
-# --------------------------------------------------
 
 X = df[["Study_Hours", "Attendance"]]
 y = df["Result"]
-# 3. Divide data into training and testing sets
+
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.30,random_state=42,stratify=y)
 
 print("\nTraining Samples:", X_train.shape[0])
 print("Testing Samples:", X_test.shape[0])
-# 4. Scale the input features
+
 scaler = StandardScaler()
-# Learn scaling values from training data
 X_train_scaled = scaler.fit_transform(X_train)
 
-# Apply the same scaling to testing data
 X_test_scaled = scaler.transform(X_test)
-# 5. Create and train the Logistic Regression model
 model = LogisticRegression(random_state=42)
 model.fit(X_train_scaled,y_train)
 
-# 6. Predict the testing results
 y_pred = model.predict(X_test_scaled)
-# Probability that each student will pass
 y_probability = model.predict_proba(X_test_scaled)[:, 1]
 
-# 7. Evaluate the model
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred)
 recall = recall_score(y_test, y_pred)
@@ -99,31 +83,25 @@ print(confusion_matrix(y_test, y_pred))
 print("\nClassification Report:")
 print(classification_report(y_test,y_pred,target_names=["Fail", "Pass"]))
 
-# 8. Display actual and predicted results
 results = X_test.copy()
 results["Actual_Result"] = y_test.values
 results["Predicted_Result"] = y_pred
 results["Pass_Probability"] = y_probability
 
-# Convert 0 and 1 into readable labels
 results["Actual_Result"] = results["Actual_Result"].map({0: "Fail",1: "Pass"})
 results["Predicted_Result"] = results["Predicted_Result"].map({0: "Fail",1: "Pass"})
 print("\nActual and Predicted Results:")
 print(results.round(4))
-# 9. Predict the result of a new student
 study_hours = float(input("\nEnter study hours per day: "))
 attendance = float(input("Enter attendance percentage: "))
 
-# Create a DataFrame for the new student
 new_student = pd.DataFrame({"Study_Hours": [study_hours],"Attendance": [attendance]})
 
-# Scale the new student's information
 new_student_scaled = scaler.transform(new_student)
-# Predict result and probability
+
 prediction = model.predict(new_student_scaled)[0]
 pass_probability = model.predict_proba(new_student_scaled)[0][1]
 
-# Display the prediction
 if prediction == 1:
     print("\nPredicted Result: PASS")
 else:
